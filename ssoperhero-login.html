@@ -199,11 +199,11 @@
    (function() {
      'use strict';
 
-
-     var showPassword, forgotPassword, signUp, password, submit, card, form;
+     var forgotPassword, signUp, submit, card, form;
 
      var toggleShowPassword = function() {
-       if (showPassword.checked) {
+       var password = this.parentElement.querySelector('input');
+       if (this.checked) {
          password.type = "text";
        } else {
          password.type = "password";
@@ -233,6 +233,23 @@
        });
      }
 
+     var collectData = function(form) {
+       var data = {};
+
+       form.querySelectorAll('input').forEach(function(input) {
+         switch (input.type) {
+           case "checkbox":
+             return data[input.name] = input.checked ? 1 : 0;
+             break;
+           default:
+             return data[input.name] = input.value;
+             break;
+         }
+       });
+
+       return data;
+     }
+
       Polymer({
         is: 'ssoperhero-login',
         properties: {
@@ -241,50 +258,35 @@
         ready: function() {
           SSOperhero.init({ provider: this.provider });
 
-          password = document.getElementById('password');
-          showPassword = document.getElementById('show_password');
           submit = document.getElementById('submit');
-          forgotPassword = document.querySelectorAll('.forgot-password-link');
-          signUp = document.querySelectorAll('.sign-up-link');
           card = document.querySelector('.card');
-          form = document.querySelector('form');
 
-          showPassword.addEventListener('change', toggleShowPassword);
-          forgotPassword.forEach(function(pw) {
+          document.querySelectorAll('[name=show_password]').forEach(function(input) {
+            input.addEventListener('change', toggleShowPassword);
+            toggleShowPassword.call(input);
+          });
+
+          document.querySelectorAll('.forgot-password-link').forEach(function(pw) {
             pw.addEventListener('click', function(event) {
               event.preventDefault();
               toggleForgotPassword();
             });
           });
 
-          signUp.forEach(function(link) {
+          document.querySelectorAll('.sign-up-link').forEach(function(link) {
             link.addEventListener('click', function(event) {
               event.preventDefault();
               toggleSignUp();
             });
           });
 
-          form.addEventListener('submit', function(event) {
+          document.querySelector('.log-in form').addEventListener('submit', function(event) {
             event.preventDefault();
-
-            var loginInfo = {};
-
-            this.querySelectorAll('input').forEach(function(input) {
-              switch (input.type) {
-                case "checkbox":
-                  return loginInfo[input.name] = input.checked ? 1 : 0;
-                  break;
-                default:
-                  return loginInfo[input.name] = input.value;
-                  break;
-              }
-            });
-
+            var loginInfo = collectData(this);
             SSOperhero.login(loginInfo);
           });
 
           setTimeout(function() { matchHeights(); }, 0);
-          toggleShowPassword();
         }
      })
    })();
