@@ -40,6 +40,12 @@
      }
 
      fieldset {
+       width: 100%;
+       border: none;
+     }
+
+     form {
+       display: block;
        border: 1px solid #ddd;
        width: 100%;
      }
@@ -137,8 +143,13 @@
             <a href="#log-in" class="sign-up-link">Log In instead.</a>
 
             <div class="field">
-              <label for="login">Login</label>
-              <input type="email" name="login" id="login" />
+              <label for="email">Email</label>
+              <input type="email" name="email" id="email" />
+            </div>
+
+            <div class="field">
+              <label for="name">User name</label>
+              <input type="text" name="name" id="name" />
             </div>
 
             <div class="field">
