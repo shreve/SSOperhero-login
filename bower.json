@@ -1,0 +1,7 @@
+{
+  "name": "ssoperhero-login",
+  "main": "ssoperhero-login.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.9.1"
+  }
+}

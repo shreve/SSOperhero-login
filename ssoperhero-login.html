@@ -1,0 +1,271 @@
+<link rel="import" href="./bower_components/polymer/polymer.html" />
+
+<dom-module id="ssoperhero-login">
+  <template>
+    <style>
+     * {
+       box-sizing: border-box;
+     }
+     form {
+       padding: 1em;
+       perspective: 1000px;
+     }
+
+     h1 {
+       margin-top: 0;
+     }
+
+     .field {
+       display: block;
+       width: 100%;
+       margin-bottom: 1em;
+     }
+
+     .field input:not([type=checkbox]) {
+       width: 100%;
+       margin-bottom: 4px;
+       padding: 0.3em 0.5em 0.4em;
+     }
+
+     button {
+       padding: 1em;
+       border: none;
+       background: #ddd;
+       border-radius: 0.5em;
+       position: relative;
+     }
+
+     button:active, button:focus, button:target {
+       outline: none;
+     }
+
+     fieldset {
+       border: 1px solid #ddd;
+       width: 100%;
+     }
+
+     .card-wrapper {
+       perspective: 1000px;
+     }
+
+     .card {
+       position: relative;
+       transition: all 0.5s;
+       transform-style: preserve-3d;
+       transition: 0.5s;
+     }
+
+     .card.log-in {
+       transform: rotateY(0deg);
+     }
+
+     .card.sign-up,
+     .card.forgot-password {
+       transform: rotateY(180deg);
+     }
+
+     .card.sign-up .sign-up {
+       transform: rotateY(180deg) translateZ(5px);
+     }
+
+     .card.forgot-password .forgot-password {
+       transform: rotateY(180deg) translateZ(5px);
+     }
+
+     .card .log-in,
+     .card .sign-up,
+     .card .forgot-password {
+       position: absolute;
+       top: 0;
+       left: 0;
+       backface-visibility: hidden;
+       background: white;
+       transition: all 0.5s;
+
+       display: block;
+       height: auto;
+       min-height: 100% !important;
+     }
+
+     .card .forgot-password,
+     .card .sign-up {
+       transform: rotateY(180deg) translateZ(0px);
+     }
+
+     .card .log-in {
+       transform: rotateY(0deg);
+     }
+
+     a, a:visited {
+       color: blue;
+     }
+    </style>
+    <div class="card-wrapper">
+      <div class="card log-in">
+        <fieldset class="log-in">
+          <form novalidate>
+            <h1>Log In</h1>
+
+            <a href="#sign-up" class="sign-up-link">Sign Up instead.</a>
+
+            <div class="field">
+              <label for="login">Login</label>
+              <input type="email" name="login" id="login" />
+            </div>
+
+            <div class="field">
+              <label for="password">Password</label>
+              <input type="password" name="password" id="password" />
+              <a href="#forgot-password" class="forgot-password-link">Forgot password?</a>
+            </div>
+
+            <div class="field">
+              <input type="checkbox" name="show_password" id="show_password" checked="checked"/>
+              <label for="show_password">Show password?</label>
+            </div>
+
+            <div class="actions">
+              <button type="submit" id="submit">Log In</button>
+            </div>
+          </form>
+        </fieldset>
+
+        <fieldset class="sign-up">
+          <form novalidate>
+            <h1>Sign Up</h1>
+
+            <a href="#log-in" class="sign-up-link">Log In instead.</a>
+
+            <div class="field">
+              <label for="login">Login</label>
+              <input type="email" name="login" id="login" />
+            </div>
+
+            <div class="field">
+              <label for="password">Password</label>
+              <input type="password" name="password" id="password" />
+            </div>
+
+            <div class="field">
+              <input type="checkbox" name="show_password" id="show_password" checked="checked"/>
+              <label for="show_password">Show password?</label>
+            </div>
+
+            <div class="actions">
+              <button type="submit" id="submit">Sign Up</button>
+            </div>
+          </form>
+        </fieldset>
+
+        <fieldset class="forgot-password">
+          <form novalidate>
+            <h1>Forgot Password</h1>
+            <div class="field">
+              <label for="login">Login</label>
+              <input type="email" name="login" id="login" />
+            </div>
+
+            <div class="actions">
+              <button type="submit" id="submit">Recover</button>
+              <a href="#forgot-password" class="forgot-password-link">Nevermind.</a>
+            </div>
+          </form>
+        </fieldset>
+      </div>
+    </div>
+  </template>
+  <script src="http://api.sugutales.dev/js/client.js"></script>
+  <script>
+   (function() {
+     'use strict';
+
+     SSOperhero.init({ provider: 'http://api.sugutales.dev' });
+
+     var showPassword, forgotPassword, signUp, password, submit, card, form;
+
+     var toggleShowPassword = function() {
+       if (showPassword.checked) {
+         password.type = "text";
+       } else {
+         password.type = "password";
+       }
+     };
+
+     var toggleForgotPassword = function() {
+       card.classList.toggle('forgot-password');
+       card.classList.toggle('log-in');
+     }
+
+     var toggleSignUp = function() {
+       card.classList.toggle('sign-up');
+       card.classList.toggle('log-in');
+     }
+
+     var matchHeights = function() {
+       var maxHeight = 0;
+       var fieldsets = document.querySelectorAll('fieldset');
+       fieldsets.forEach(function(item) {
+         if (item.clientHeight > maxHeight) {
+           maxHeight = item.clientHeight;
+         }
+       });
+       fieldsets.forEach(function(item) {
+         item.style.height  = maxHeight + 'px';
+       });
+     }
+
+      Polymer({
+        is: 'ssoperhero-login',
+        properties: {
+        },
+        ready: function() {
+
+          password = document.getElementById('password');
+          showPassword = document.getElementById('show_password');
+          submit = document.getElementById('submit');
+          forgotPassword = document.querySelectorAll('.forgot-password-link');
+          signUp = document.querySelectorAll('.sign-up-link');
+          card = document.querySelector('.card');
+          form = document.querySelector('form');
+
+          showPassword.addEventListener('change', toggleShowPassword);
+          forgotPassword.forEach(function(pw) {
+            pw.addEventListener('click', function(event) {
+              event.preventDefault();
+              toggleForgotPassword();
+            });
+          });
+
+          signUp.forEach(function(link) {
+            link.addEventListener('click', function(event) {
+              event.preventDefault();
+              toggleSignUp();
+            });
+          });
+
+          form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            var loginInfo = {};
+
+            this.querySelectorAll('input').forEach(function(input) {
+              switch (input.type) {
+                case "checkbox":
+                  return loginInfo[input.name] = input.checked ? 1 : 0;
+                  break;
+                default:
+                  return loginInfo[input.name] = input.value;
+                  break;
+              }
+            });
+
+            SSOperhero.login(loginInfo);
+          });
+
+          setTimeout(function() { matchHeights(); }, 0);
+          toggleShowPassword();
+        }
+     })
+   })();
+  </script>
+</dom-module>
