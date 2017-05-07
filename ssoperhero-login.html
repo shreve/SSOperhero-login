@@ -60,26 +60,31 @@
 
      .card {
        position: relative;
-       transition: all 0.5s;
        transform-style: preserve-3d;
+       -webkit-transform-style: preserve-3d;
        transition: 0.5s;
+       -webkit-transition: 0.5s;
      }
 
      .card.log-in {
        transform: rotateY(0deg);
+       -webkit-transform: rotateY(0deg);
      }
 
      .card.sign-up,
      .card.forgot-password {
        transform: rotateY(180deg);
+       -webkit-transform: rotateY(180deg);
      }
 
      .card.sign-up .sign-up {
        transform: rotateY(180deg) translateZ(5px);
+       -webkit-transform: rotateY(180deg) translateZ(5px);
      }
 
      .card.forgot-password .forgot-password {
        transform: rotateY(180deg) translateZ(5px);
+       -webkit-transform: rotateY(180deg) translateZ(5px);
      }
 
      .card .log-in,
@@ -100,10 +105,12 @@
      .card .forgot-password,
      .card .sign-up {
        transform: rotateY(180deg) translateZ(0px);
+       -webkit-transform: rotateY(180deg) translateZ(0px);
      }
 
      .card .log-in {
        transform: rotateY(0deg);
+       -webkit-transform: rotateY(0deg);
      }
 
      a, a:visited {
