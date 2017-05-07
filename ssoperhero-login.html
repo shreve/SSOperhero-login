@@ -39,6 +39,10 @@
        outline: none;
      }
 
+     .actions a {
+       padding-left: 1em;
+     }
+
      fieldset {
        width: 100%;
        border: none;
@@ -112,7 +116,9 @@
           <form novalidate>
             <h1>Log In</h1>
 
-            <a href="#sign-up" class="sign-up-link">Sign Up instead.</a>
+            <div class="field">
+              <a href="#sign-up" class="sign-up-link">Sign Up instead.</a>
+            </div>
 
             <div class="field">
               <label for="login">Login</label>
@@ -122,16 +128,13 @@
             <div class="field">
               <label for="password">Password</label>
               <input type="password" name="password" id="password" />
-              <a href="#forgot-password" class="forgot-password-link">Forgot password?</a>
-            </div>
-
-            <div class="field">
               <input type="checkbox" name="show_password" id="show_password" checked="checked"/>
               <label for="show_password">Show password?</label>
             </div>
 
             <div class="actions">
               <button type="submit" id="submit">Log In</button>
+              <a href="#forgot-password" class="forgot-password-link">Forgot password?</a>
             </div>
           </form>
         </fieldset>
@@ -140,7 +143,9 @@
           <form novalidate>
             <h1>Sign Up</h1>
 
-            <a href="#log-in" class="sign-up-link">Log In instead.</a>
+            <div class="field">
+              <a href="#log-in" class="sign-up-link">Log In instead.</a>
+            </div>
 
             <div class="field">
               <label for="email">Email</label>
@@ -148,16 +153,13 @@
             </div>
 
             <div class="field">
-              <label for="name">User name</label>
+              <label for="name">Unique Name</label>
               <input type="text" name="name" id="name" />
             </div>
 
             <div class="field">
               <label for="password">Password</label>
               <input type="password" name="password" id="password" />
-            </div>
-
-            <div class="field">
               <input type="checkbox" name="show_password" id="show_password" checked="checked"/>
               <label for="show_password">Show password?</label>
             </div>
@@ -190,7 +192,6 @@
    (function() {
      'use strict';
 
-     SSOperhero.init({ provider: 'http://api.sugutales.dev' });
 
      var showPassword, forgotPassword, signUp, password, submit, card, form;
 
@@ -228,8 +229,10 @@
       Polymer({
         is: 'ssoperhero-login',
         properties: {
+          provider: String
         },
         ready: function() {
+          SSOperhero.init({ provider: this.provider });
 
           password = document.getElementById('password');
           showPassword = document.getElementById('show_password');
