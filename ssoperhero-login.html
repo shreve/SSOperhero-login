@@ -194,7 +194,6 @@
       </div>
     </div>
   </template>
-  <script src="http://api.sugutales.dev/js/client.js"></script>
   <script>
    (function() {
      'use strict';
@@ -256,7 +255,13 @@
           provider: String
         },
         ready: function() {
-          SSOperhero.init({ provider: this.provider });
+          var ssoClient = document.createElement('script'),
+              provider = this.provider;
+          ssoClient.onload = function() {
+            SSOperhero.init({ provider: provider });
+          };
+          ssoClient.src = provider + '/js/client.js';
+          document.getElementsByTagName('head')[0].appendChild(ssoClient);
 
           submit = document.getElementById('submit');
           card = document.querySelector('.card');
