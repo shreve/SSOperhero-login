@@ -1,8 +1,11 @@
-<link rel="import" href="./bower_components/polymer/polymer.html" />
+<link rel="import" href="../polymer/polymer.html" />
 
 <dom-module id="ssoperhero-login">
   <template>
     <style>
+     :host {
+       display: block;
+     }
      * {
        box-sizing: border-box;
      }
@@ -33,6 +36,7 @@
        background: #ddd;
        border-radius: 0.5em;
        position: relative;
+       cursor: pointer;
      }
 
      button:active, button:focus, button:target {
@@ -55,7 +59,7 @@
      }
 
      .card-wrapper {
-       perspective: 1000px;
+       perspective: 1500px;
      }
 
      .card {
@@ -118,6 +122,7 @@
        color: blue;
      }
     </style>
+
     <div class="card-wrapper">
       <div class="card log-in">
         <fieldset class="log-in">
@@ -199,41 +204,50 @@
    (function() {
      'use strict';
 
-     var forgotPassword, signUp, submit, card, form;
+     // forEach polyfill
+     if (window.NodeList && !NodeList.prototype.forEach) {
+       NodeList.prototype.forEach = function (callback, argument) {
+         argument = argument || window;
+         for (var i = 0; i < this.length; i++) {
+           callback.call(argument, this[i], i, this);
+         }
+       };
+     }
 
-     var toggleShowPassword = function() {
-       var password = this.parentElement.querySelector('input');
-       if (this.checked) {
+     function toggleShowPassword(input) {
+       var password = input.parentElement.querySelector('input');
+       if (input.checked) {
          password.type = "text";
        } else {
          password.type = "password";
        }
      };
 
-     var toggleForgotPassword = function() {
-       card.classList.toggle('forgot-password');
-       card.classList.toggle('log-in');
+     function toggleForgotPassword(el) {
+       el.classList.toggle('forgot-password');
+       el.classList.toggle('log-in');
      }
 
-     var toggleSignUp = function() {
-       card.classList.toggle('sign-up');
-       card.classList.toggle('log-in');
+     function toggleSignUp(el) {
+       el.classList.toggle('sign-up');
+       el.classList.toggle('log-in');
      }
 
-     var matchHeights = function() {
+     function matchHeights(fieldsets) {
        var maxHeight = 0;
-       var fieldsets = document.querySelectorAll('fieldset');
        fieldsets.forEach(function(item) {
          if (item.clientHeight > maxHeight) {
            maxHeight = item.clientHeight;
          }
        });
        fieldsets.forEach(function(item) {
-         item.style.height  = maxHeight + 'px';
+         item.style.height = maxHeight + 'px';
        });
+
+       fieldsets[0].parentNode.style.height = maxHeight + 'px';
      }
 
-     var collectData = function(form) {
+     function collectData(form) {
        var data = {};
 
        form.querySelectorAll('input').forEach(function(input) {
@@ -250,61 +264,75 @@
        return data;
      }
 
-     // forEach polyfill
-     if (window.NodeList && !NodeList.prototype.forEach) {
-       NodeList.prototype.forEach = function (callback, argument) {
-         argument = argument || window;
-         for (var i = 0; i < this.length; i++) {
-           callback.call(argument, this[i], i, this);
-         }
-       };
+     function addScript(src, callback) {
+       var script = document.createElement('script');
+       script.onload = callback;
+       script.src = src;
+       document.getElementsByTagName('head')[0].appendChild(script);
      }
 
-      Polymer({
-        is: 'ssoperhero-login',
-        properties: {
-          provider: String
-        },
-        ready: function() {
-          var ssoClient = document.createElement('script'),
-              provider = this.provider;
-          ssoClient.onload = function() {
-            SSOperhero.init({ provider: provider });
-          };
-          ssoClient.src = provider + '/js/client.js';
-          document.getElementsByTagName('head')[0].appendChild(ssoClient);
+     class SsoperheroLogin extends Polymer.Element {
+       static get is() { return 'ssoperhero-login'; }
+       static get properties() {
+         return {
+           provider: String,
+           forms: Object
+         }
+       }
 
-          submit = document.getElementById('submit');
-          card = document.querySelector('.card');
+       ready() {
+         super.ready()
 
-          document.querySelectorAll('[name=show_password]').forEach(function(input) {
-            input.addEventListener('change', toggleShowPassword);
-            toggleShowPassword.call(input);
-          });
+         addScript(
+           this.provider + '/js/client.js',
+           _ => SSOperhero.init({ provider: this.provider })
+         )
 
-          document.querySelectorAll('.forgot-password-link').forEach(function(pw) {
-            pw.addEventListener('click', function(event) {
-              event.preventDefault();
-              toggleForgotPassword();
-            });
-          });
+         this.card = this.root.querySelector('.card');
+         this.forms = {
+           login: this.root.querySelector('.log-in form'),
+           register: this.root.querySelector('.sign-up form'),
+           forgot: this.root.querySelector('.forgot-password form'),
+         };
+         this.fieldsets = this.root.querySelectorAll('fieldset')
 
-          document.querySelectorAll('.sign-up-link').forEach(function(link) {
-            link.addEventListener('click', function(event) {
-              event.preventDefault();
-              toggleSignUp();
-            });
-          });
+         this.root.querySelectorAll('[name=show_password]').forEach(input => {
+           input.addEventListener('change', input => toggleShowPassword(input))
+           toggleShowPassword(input)
+         });
 
-          document.querySelector('.log-in form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            var loginInfo = collectData(this);
-            SSOperhero.login(loginInfo);
-          });
+         this.root.querySelectorAll('.forgot-password-link').forEach(pw => {
+           pw.addEventListener('click', event => {
+             event.preventDefault()
+             toggleForgotPassword(this.card)
+           });
+         });
 
-          setTimeout(function() { matchHeights(); }, 0);
-        }
-     })
+         this.root.querySelectorAll('.sign-up-link').forEach(link => {
+           link.addEventListener('click', event => {
+             event.preventDefault();
+             toggleSignUp(this.card);
+           });
+         });
+
+
+         ['login', 'register', 'forgot'].forEach(event => {
+           this.forms[event].addEventListener('submit', e => {
+             e.preventDefault();
+             var data = collectData(this.forms[event]);
+             console.log(event);
+             SSOperhero[event](data)
+           })
+         })
+
+         setTimeout(() => matchHeights(this.fieldsets), 0);
+       }
+     }
+
+     window.SsoperheroLogin = SsoperheroLogin;
    })();
+
+
+   window.customElements.define(SsoperheroLogin.is, SsoperheroLogin);
   </script>
 </dom-module>
